@@ -48,6 +48,7 @@ type Expr interface {
 type OrderExpr interface {
 	Expr
 	Desc() Expr
+	Asc() Expr
 }
 
 type expression interface{}
@@ -260,7 +261,7 @@ func (e expr) ConcatCol(cols ...Expr) Expr {
 		vars = append(vars, col.RawExpr())
 	}
 	return Field{e.setE(clause.Expr{
-		SQL:  fmt.Sprintf("Concat(%s)", strings.Join(placeholders, ",")),
+		SQL:  fmt.Sprintf("CONCAT(%s)", strings.Join(placeholders, ",")),
 		Vars: vars,
 	})}
 }
@@ -274,8 +275,14 @@ func (e expr) As(alias string) Expr {
 	return e
 }
 
+// Desc sort by desc
 func (e expr) Desc() Expr {
 	return e.setE(clause.Expr{SQL: "? DESC", Vars: []interface{}{e.RawExpr()}})
+}
+
+// Asc sort by asc
+func (e expr) Asc() Expr {
+	return e.setE(clause.Expr{SQL: "? ASC", Vars: []interface{}{e.RawExpr()}})
 }
 
 // ======================== general experssion ========================
